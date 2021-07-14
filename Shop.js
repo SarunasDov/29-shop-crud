@@ -1,102 +1,134 @@
 class Shop {
-    constructor(shopName, currency) {
-        this.productsList = [];
-        this.usersList = [];
-        this.shop = shopName;
-        this.currency = currency
+    constructor(pavadinimas, valiuta) {
+        this.pavadinimas = pavadinimas;
+        this.valiuta = valiuta;
+        this.itemList = [];
+        this.cart = [];
     }
     intro() {
-        console.log(`Hi, we are "${this.shop}".\nUse .items() method to get list of items to purchase.\nUse .order() method to get your order details.`);
-    };
-
+        console.log(`Hi we are "${this.pavadinimas}". \nUse .items() method to get list of items to purchase.\nUse .order() method to get your order details.`);
+    }
     addItem(item, price) {
-
-        if (!this.isValidProductName(item) ||
-            !this.isValidPrice(price)) {
+        if (!this.isValidItem(item) || !this.isValidPrice(price)) {
             return false;
         }
-        let product = item;
-        let kaina = (price / 100);
-        const kainaToShow = kaina.toFixed(2);
-        this.productsList.push({ product, kaina });
+        let formatedPrice = price / 100;
+        let formatedItem = item.charAt(0).toUpperCase() + item.slice(1);
+        this.itemList.push({
+            item: formatedItem,
+            price: formatedPrice
+        })
+        console.log(this.itemList);
+        console.log(`"Meskiuko kioskas" sells ${item} for ${formatedPrice} EUR now! `);
 
-        console.log(`"Meskiuko kioskas" sells ${product} for ${kainaToShow} ${this.currency} now!`);
-    };
+    }
+    isValidItem(item) {
+        if (typeof item !== 'string' ||
+            item === '' ||
+            item !== item.toLowerCase()) {
+            console.error('ERROR: nevalidi prekes ivestis');
+            return false;
+        }
+        return true;
+    }
+
+    isValidPrice(price) {
+        if (typeof price !== 'number' ||
+            price < 0) {
+            console.error('ERROR: nevalidi prekes kaina');
+            return false;
+        }
+        return true;
+    }
 
     items() {
         console.log('Items for sale at "Meskiuko kioskas":');
         console.log('====================');
-
-        for (let i = 0; i < this.productsList.length; i++) {
-            const item = this.productsList[i];
-            console.log(`${i + 1}) ${item.product} - ${(item.kaina).toFixed(2)} EUR;`);
+        for (let i = 0; i < this.itemList.length; i++) {
+            const entry = this.itemList[i];
+            console.log(`${i + 1}) ${entry.item} - ${entry.price} EUR;`);
         }
-        console.log('====================');
-    };
-
-    updatePrice(name, newPrice) {
-        let updatedProduct = this.productsList.find(item => item.product === name)
-        updatedProduct.kaina = (newPrice / 100);
-    };
-
-    createCart(owner) {
-        if (!this.isValidUserName(owner)) {
-            return false
-        }
-        this.usersList.push({ owner, items: [] })
-        console.log(`${owner} have an open cart at "${this.shop}"!`);
-    };
-
-    addItemToCart(owner, index, index2) {
-        // let user = this.usersList.find(owner);
-        // console.log(user);
-        // for (let i = 0; i < this.productsList.length; i++) {
-        //     const product = this.productsList[i];
-        //     if ((index - 1) === i) {
-        //         this.usersList[owner].items.push({ product });
-        //     }
-        // }
-        console.log(this.usersList[items]);
-    };
-
-    order() { };
-
-    orderPrice() { };
-
-    removeItem() { };
-
-    pay() { };
-
-    shopSummary() { };
-
-    isValidProductName(itemName) {
-        if (typeof itemName !== 'string' ||
-            itemName === '' ||
-            itemName !== itemName.toLowerCase()) {
-            console.error('ERROR: Item name has to be non empty and all lower case string');
-            return false
-        }
-        return true;
+        console.log('====================')
     }
-    isValidPrice(price) {
-        if (typeof price !== 'number' ||
-            price < 0 ||
-            price % 1 !== 0) {
-            console.error('ERROR: price has to be a bigger than 0 integer');
-            return false;
+
+    updatePrice(itemKey, priceUpdate) {
+        for (let i = 0; i < this.itemList.length; i++) {
+            const element = this.itemList[i];
+
+            if (itemKey === element.item.toLowerCase()) {
+                element.price = priceUpdate / 100;
+            }
+
         }
-        return true;
+        console.log(`"Meskiuko kioskas" updated price and sells ${itemKey} for ${priceUpdate / 100}0 EUR now!`);
     }
-    isValidUserName(name) {
-        if (typeof name !== 'string' ||
-            name === '' ||
-            name === undefined ||
-            name.length < 2 ||
-            name[0] !== name[0].toUpperCase()) {
-            console.error('ERROR: wrong user name, must be atleast two letters, first uppercase string');
-            return false;
+
+    createCart(buyer) {
+        this.cart.push({
+            owner: buyer,
+            items: []
+        })
+
+        // console.log(this.cart);
+        console.log(`${buyer} has an open cart at "Meskiuko kioskas"!`);
+    }
+
+
+    addItemToCart(name, id, count) {
+        for (let i = 0; i < this.cart.length; i++) {
+            const element = this.cart[i];
+            if (element.owner === name) {
+
+                element.items.push({
+                    id: id,
+                    count: count
+                })
+            }
+
         }
-        return true;
-    };
+        // console.log(this.cart);
+    }
+
+    order(name) {
+        for (const entry of this.cart)
+            if (entry.owner === name) {
+                console.log(entry);
+            }
+    }
+
+    orderPrice(buyer) {
+        let check = [];
+        for (let i = 0; i < this.cart.length; i++) {
+            const element = this.cart[i];
+            if (element.owner === buyer) {
+                check.push(element.items.id)
+            }
+        }
+        console.log(check);
+        // console.log(`${buyer} order: ${} EUR.`);
+    }
+
+    removeItem(item) {
+        let updatedList = []
+        for (let i = 0; i < this.itemList.length; i++) {
+            const element = this.itemList[i];
+            if (element.item.toLowerCase() !== item) {
+                updatedList.push(element)
+            }
+
+        }
+        this.itemList = updatedList
+        console.log(` No more ${item} at "Meskiuko kioskas"!`);
+    }
+
+    pay() {
+
+    }
+
+    shopSummary() {
+
+    }
+
 }
+
 module.exports = Shop;
