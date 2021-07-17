@@ -1,134 +1,138 @@
 class Shop {
-    constructor(pavadinimas, valiuta) {
-        this.pavadinimas = pavadinimas;
-        this.valiuta = valiuta;
-        this.itemList = [];
-        this.cart = [];
+    constructor(shopName, currency) {
+        this.shopName = shopName;
+        this.currency = currency;
+        this.productList = [];
+        this.ordersList = [];
     }
+
     intro() {
-        console.log(`Hi we are "${this.pavadinimas}". \nUse .items() method to get list of items to purchase.\nUse .order() method to get your order details.`);
+        console.log(`Hi, we are "${this.shopName}".\nUse .items() method to get list of items to purchase.\nUse .order() method to get your order details.`);
     }
-    addItem(item, price) {
-        if (!this.isValidItem(item) || !this.isValidPrice(price)) {
-            return false;
-        }
-        let formatedPrice = price / 100;
-        let formatedItem = item.charAt(0).toUpperCase() + item.slice(1);
-        this.itemList.push({
-            item: formatedItem,
-            price: formatedPrice
+
+    formatPrice(priceInCents) {
+        const price = (priceInCents / 100).toFixed(2);
+        return `${price} ${this.currency}`;
+    }
+
+    addItem(productName, productPriceInCents) {
+        this.productList.push({
+            name: productName,
+            price: productPriceInCents,
+            forSale: true
         })
-        console.log(this.itemList);
-        console.log(`"Meskiuko kioskas" sells ${item} for ${formatedPrice} EUR now! `);
-
-    }
-    isValidItem(item) {
-        if (typeof item !== 'string' ||
-            item === '' ||
-            item !== item.toLowerCase()) {
-            console.error('ERROR: nevalidi prekes ivestis');
-            return false;
-        }
-        return true;
+        console.log(`"${this.shopName}" sells ${productName} for ${this.formatPrice(productPriceInCents)} now!`);
     }
 
-    isValidPrice(price) {
-        if (typeof price !== 'number' ||
-            price < 0) {
-            console.error('ERROR: nevalidi prekes kaina');
-            return false;
-        }
-        return true;
+    capitalize(text) {
+        return text[0].toUpperCase() + text.slice(1);
     }
 
     items() {
-        console.log('Items for sale at "Meskiuko kioskas":');
-        console.log('====================');
-        for (let i = 0; i < this.itemList.length; i++) {
-            const entry = this.itemList[i];
-            console.log(`${i + 1}) ${entry.item} - ${entry.price} EUR;`);
-        }
-        console.log('====================')
-    }
-
-    updatePrice(itemKey, priceUpdate) {
-        for (let i = 0; i < this.itemList.length; i++) {
-            const element = this.itemList[i];
-
-            if (itemKey === element.item.toLowerCase()) {
-                element.price = priceUpdate / 100;
-            }
-
-        }
-        console.log(`"Meskiuko kioskas" updated price and sells ${itemKey} for ${priceUpdate / 100}0 EUR now!`);
-    }
-
-    createCart(buyer) {
-        this.cart.push({
-            owner: buyer,
-            items: []
-        })
-
-        // console.log(this.cart);
-        console.log(`${buyer} has an open cart at "Meskiuko kioskas"!`);
-    }
-
-
-    addItemToCart(name, id, count) {
-        for (let i = 0; i < this.cart.length; i++) {
-            const element = this.cart[i];
-            if (element.owner === name) {
-
-                element.items.push({
-                    id: id,
-                    count: count
-                })
-            }
-
-        }
-        // console.log(this.cart);
-    }
-
-    order(name) {
-        for (const entry of this.cart)
-            if (entry.owner === name) {
-                console.log(entry);
-            }
-    }
-
-    orderPrice(buyer) {
-        let check = [];
-        for (let i = 0; i < this.cart.length; i++) {
-            const element = this.cart[i];
-            if (element.owner === buyer) {
-                check.push(element.items.id)
+        console.log(`Items for sale at "${this.shopName}":`);
+        console.log(`====================`);
+        let index = 0;
+        for (const product of this.productList) {
+            if (product.forSale) {
+                console.log(`${++index}) ${this.capitalize(product.name)} - ${this.formatPrice(product.price)};`);
             }
         }
-        console.log(check);
-        // console.log(`${buyer} order: ${} EUR.`);
+        console.log(`====================`);
     }
 
-    removeItem(item) {
-        let updatedList = []
-        for (let i = 0; i < this.itemList.length; i++) {
-            const element = this.itemList[i];
-            if (element.item.toLowerCase() !== item) {
-                updatedList.push(element)
+    updatePrice(productName, productPriceInCents) {
+        for (const product of this.productList) {
+            if (product.name === productName) {
+                product.price = productPriceInCents;
+                break;
             }
-
         }
-        this.itemList = updatedList
-        console.log(` No more ${item} at "Meskiuko kioskas"!`);
+        console.log(`"${this.shopName}" updated price and sells ${productName} for ${this.formatPrice(productPriceInCents)} now!`);
     }
 
-    pay() {
+    createCart(owner) {
+        this.ordersList.push({ owner, items: [], paid: false });
+    }
 
+    addItemToCart(owner, productNumber, productCount) {
+        for (const order of this.ordersList) {
+            if (order.owner === owner) {
+                if (order.paid) {
+                    console.log('You can not add items to already paid cart!');
+                    return;
+                }
+
+                if (this.productList[productNumber - 1].forSale) {
+                    order.items.push({
+                        id: productNumber,
+                        count: productCount
+                    })
+                    return;
+                }
+            }
+        }
+    }
+
+    order(owner, notification = true) {
+        for (const order of this.ordersList) {
+            if (order.owner === owner) {
+                if (notification) {
+                    console.log(order);
+                }
+                return order;
+            }
+        }
+    }
+
+    orderPrice(owner, notification = true) {
+        let totalPrice = 0;
+        const order = this.order(owner, false);
+
+        for (const item of order.items) {
+            const product = this.productList[item.id - 1];
+            totalPrice += item.count * product.price;
+        }
+
+        if (notification) {
+            console.log(`${owner} order: ${this.formatPrice(totalPrice)}.`);
+        }
+        return totalPrice;
+    }
+
+    removeItem(productName) {
+        for (const product of this.productList) {
+            if (product.name !== productName) {
+                product.forSale = false;
+            }
+        }
+        console.log(`No more ${productName} at "${this.shopName}"!`);
+    }
+
+    pay(owner, cash) {
+        const price = this.orderPrice(owner, false);
+        if (price > cash) {
+            console.log('Need more money!');
+            return;
+        }
+
+        const change = cash - price;
+        let message = '';
+        if (change > 0) {
+            message += `Here is your ${this.formatPrice(change)} change!\n`;
+        }
+        message += `Thank you for purchasing at "${this.shopName}"!`;
+        console.log(message);
+
+        for (const order of this.ordersList) {
+            if (order.owner === owner) {
+                order.paid = true;
+                break;
+            }
+        }
     }
 
     shopSummary() {
-
     }
-
 }
 
 module.exports = Shop;

@@ -42,7 +42,7 @@ onlineKioskas.createCart('Augustas');
 
 onlineKioskas.createCart('Barbora');
 // Barbora have an open cart at "Meskiuko kioskas"!
-console.log(onlineKioskas);
+
 onlineKioskas.addItemToCart('Augustas', 2, 1);
 onlineKioskas.addItemToCart('Augustas', 4, 2);
 onlineKioskas.addItemToCart('Augustas', 5, 1);
@@ -76,7 +76,7 @@ onlineKioskas.order('Barbora');
 */
 
 onlineKioskas.orderPrice('Augustas');
-// Augustas order: 5.30 EUR.
+// Augustas order: 4.40 EUR.
 
 onlineKioskas.orderPrice('Barbora');
 // Barbora order: 5.50 EUR.
@@ -87,46 +87,49 @@ onlineKioskas.removeItem('obuolys');
 onlineKioskas.removeItem('morka');
 // No more obuolys at "Meskiuko kioskas"!
 
-onlineKioskas.pay('Augustas', 500);
+onlineKioskas.pay('Augustas', 400);
 // Need more money!
 
 onlineKioskas.pay('Augustas', 600);
-// Here is your 0.70 EUR change!\nThank you for purchasing at "Meskiuko kioskas"!
+// Here is your 1.60 EUR change!\nThank you for purchasing at "Meskiuko kioskas"!
 
 onlineKioskas.pay('Barbora', 550);
 // Thank you for purchasing at "Meskiuko kioskas"!
 
-onlineKioskas.addItemToCart('Augustas', 2, 1);
+onlineKioskas.addItemToCart('Augustas', 3, 1);
 // You can not add items to already paid cart!
 
-onlineKioskas.addItemToCart('John', 3, 1);
-onlineKioskas.addItemToCart('John', 4, 2);
-onlineKioskas.addItemToCart('John', 5, 1);
+onlineKioskas.createCart('John');
+// John have an open cart at "Meskiuko kioskas"!
 
-onlineKioskas.addItemToCart('John', 1, 1);
-// Item is out of stock!
+// onlineKioskas.addItemToCart('John', 3, 1);
+// onlineKioskas.addItemToCart('John', 4, 2);
+// onlineKioskas.addItemToCart('John', 5, 1);
 
-onlineKioskas.order('John');
-/*
-{
-    owner: 'Augustas',
-    items: [
-        { id: 3, count: 1 },
-        { id: 4, count: 2 },
-        { id: 5, count: 1 },
-    ]
-}
-*/
+// onlineKioskas.addItemToCart('John', 1, 1);
+// // Item is out of stock!
 
-onlineKioskas.orderPrice('John');
-// Augustas order: 5.60 EUR.
+// onlineKioskas.order('John');
+// /*
+// {
+//     owner: 'John',
+//     items: [
+//         { id: 3, count: 1 },
+//         { id: 4, count: 2 },
+//         { id: 5, count: 1 },
+//     ]
+// }
+// */
 
-onlineKioskas.shopSummary();
-// Summary for the "Meskiuko kioskas"
-// ====================
-// Items sold: 12
-// Orders completed: 2
-// Orders in progress: 1
-// Profit: 10.80 EUR
-// Possible profit: 5.60 EUR
-// ====================
+// onlineKioskas.orderPrice('John');
+// // Augustas order: 5.60 EUR.
+
+// onlineKioskas.shopSummary();
+// // Summary for the "Meskiuko kioskas"
+// // ====================
+// // Items sold: 12
+// // Orders completed: 2
+// // Orders in progress: 1
+// // Profit: 10.80 EUR
+// // Possible profit: 5.60 EUR
+// // ====================
